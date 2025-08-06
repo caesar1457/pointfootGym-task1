@@ -137,29 +137,42 @@ class PointFootRoughCfg(BaseConfig):
 
     class rewards:
         class scales:
-            action_rate = -0.01
-            ang_vel_xy = -0.05
-            base_height = -10.0
-            collision = -50.0
-            dof_acc = -2.5e-07
-            dof_pos_limits = -0.0
-            dof_vel = -0.0
-            feet_air_time = 60
-            feet_contact_forces = -0.01
-            feet_stumble = -0.0
-            lin_vel_z = -0.5
-            no_fly = 1.0
-            orientation = -5.0
-            stand_still = -1.0
-            termination = -0.0
-            torque_limits = -0.1
-            torques = -2.5e-05
-            tracking_ang_vel = 5
-            tracking_lin_vel = 10.0
-            unbalance_feet_air_time = -300.0
-            unbalance_feet_height = -60.0
-            feet_distance = -100
-            survival = 100
+            # ========== 奖励函数 (正奖励) ==========
+            # 任务完成相关奖励
+            tracking_lin_vel = 10.0      # 线性速度跟踪奖励
+            tracking_ang_vel = 5         # 角速度跟踪奖励
+            feet_air_time = 60           # 足部空中时间奖励
+            survival = 100               # 生存奖励
+            no_fly = 1.0                 # 防飞行奖励
+            
+            # ========== 惩罚函数 (负奖励) ==========
+            # 安全性惩罚
+            collision = -50.0            # 碰撞惩罚
+            termination = -0.0           # 终止惩罚
+            
+            # 运动稳定性惩罚
+            ang_vel_xy = -0.05          # XY轴角速度惩罚
+            lin_vel_z = -0.5            # Z轴线性速度惩罚
+            orientation = -5.0           # 姿态惩罚
+            base_height = -10.0         # 基础高度惩罚
+            
+            # 关节控制惩罚
+            torques = -2.5e-05          # 扭矩惩罚
+            torque_limits = -0.1        # 扭矩限制惩罚
+            dof_acc = -2.5e-07          # 关节加速度惩罚
+            dof_vel = -0.0              # 关节速度惩罚
+            dof_pos_limits = -0.0       # 关节位置限制惩罚
+            action_rate = -0.01         # 动作变化率惩罚
+            
+            # 足部控制惩罚
+            feet_contact_forces = -0.01 # 足部接触力惩罚
+            feet_distance = -100        # 足部距离惩罚
+            feet_stumble = -0.0         # 足部绊倒惩罚
+            unbalance_feet_air_time = -300.0  # 不平衡足部空中时间惩罚
+            unbalance_feet_height = -60.0     # 不平衡足部高度惩罚
+            
+            # 其他惩罚
+            stand_still = -1.0          # 静止惩罚
             
         base_height_target = 0.62
         soft_dof_pos_limit = 0.95  # percentage of urdf limits, values above this limit are penalized

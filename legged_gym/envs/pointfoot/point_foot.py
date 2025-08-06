@@ -1229,3 +1229,20 @@ class PointFoot:
         # penalize high contact forces
         return torch.sum((torch.norm(self.contact_forces[:, self.feet_indices, :],
                                      dim=-1) - self.cfg.rewards.max_contact_force).clip(min=0.), dim=1)
+
+    def _reward_no_fly(self):
+        contacts = self.contact_forces[:, self.feet_indices, 2] > 0.1
+        single_contact = torch.sum(1. * contacts, dim=1) == 1
+        return 1. * single_contact
+    
+    def _reward_stand_still(self):
+        # Penalize displacement and rotation at zero commands
+        reward_lin = torch.abs(self.base_lin_vel[:, :2]) * (torch.abs(self.commands[:, :2] < 0.1))
+        reward_ang = (torch.abs(self.base_ang_vel[:, -1]) * (torch.abs(self.commands[:, 2] < 0.1))).unsqueeze(dim=-1)
+        return torch.sum(torch.cat((reward_lin, reward_ang), dim=-1), dim=-1)
+    
+    def _reward_unbalance_feet_air_time(self):
+        return torch.var(self.last_feet_air_time, dim=-1)
+    
+    def _reward_unbalance_feet_height(self):
+        return torch.var(self.last_max_feet_height, dim=-1)
