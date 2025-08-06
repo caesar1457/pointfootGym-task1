@@ -38,7 +38,7 @@ class PointFootRoughCfg(BaseConfig):
         slope_treshold = 0.75  # slopes above this threshold will be corrected to vertical surfaces
 
     class commands:
-        curriculum = False
+        curriculum = True
         max_curriculum = 1.
         num_commands = 4  # default: lin_vel_x, lin_vel_y, ang_vel_yaw, heading (in heading mode ang_vel_yaw is recomputed from heading error)
         resampling_time = 10.  # time before command are changed[s]
@@ -46,7 +46,7 @@ class PointFootRoughCfg(BaseConfig):
 
         class ranges:
             lin_vel_x = [-1.0, 1.0]  # min max [m/s]
-            lin_vel_y = [-0.2, 0.2]  # min max [m/s]
+            lin_vel_y = [-0.4, 0.4]  # min max [m/s]
             ang_vel_yaw = [-1, 1]  # min max [rad/s]
             heading = [-3.14, 3.14]
 
@@ -139,15 +139,28 @@ class PointFootRoughCfg(BaseConfig):
         class scales:
             action_rate = -0.01
             ang_vel_xy = -0.05
-            base_height = -2.0
+            base_height = -10.0
             collision = -50.0
             dof_acc = -2.5e-07
-            feet_air_time = 0.0
+            dof_pos_limits = -0.0
+            dof_vel = -0.0
+            feet_air_time = 60
+            feet_contact_forces = -0.01
+            feet_stumble = -0.0
+            lin_vel_z = -0.5
+            no_fly = 1.0
+            orientation = -5.0
+            stand_still = -1.0
+            termination = -0.0
             torque_limits = -0.1
             torques = -2.5e-05
+            tracking_ang_vel = 5
+            tracking_lin_vel = 10.0
+            unbalance_feet_air_time = -300.0
+            unbalance_feet_height = -60.0
             feet_distance = -100
-            survival = 1
-
+            survival = 100
+            
         base_height_target = 0.62
         soft_dof_pos_limit = 0.95  # percentage of urdf limits, values above this limit are penalized
         soft_dof_vel_limit = 0.9

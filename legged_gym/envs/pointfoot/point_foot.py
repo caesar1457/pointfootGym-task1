@@ -1156,7 +1156,7 @@ class PointFoot:
         return reward
 
     def _reward_survival(self):
-        return (~self.reset_buf).float()
+        return (~self.reset_buf).float() * self.dt
 
     # ------- TODO: add reward function for velocity tracking task -------
     '''
@@ -1175,12 +1175,14 @@ class PointFoot:
     # 1. linear velocity tracking
     def _reward_tracking_lin_vel(self):
         # Tracking the linear velocity command
-        pass
+        lin_vel_error = torch.sum(torch.square(self.commands[:, :2] - self.base_lin_vel[:, :2]), dim=1)
+        return torch.exp(-lin_vel_error / self.cfg.rewards.tracking_sigma)
 
     # 2. angular velocity tracking
     def _reward_tracking_ang_vel(self):
         # Tracking the angular velocity command
-        pass
+        ang_vel_error = torch.square(self.commands[:, 2] - self.base_ang_vel[:, 2])
+        return torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma)
     
     # 3. base height tracking (typically, the target base height is set as a constant)
     def _reward_base_height(self):
@@ -1196,4 +1198,34 @@ class PointFoot:
     # 4. flat orientation
     def _reward_orientation(self):
         # Penalize non flat base orientation
-        pass
+        return torch.sum(torch.square(self.projected_gravity[:, :2]), dim=1)
+
+    # ------------ new reward functions----------------
+    def _reward_lin_vel_z(self):
+        # Penalize z axis base linear velocity
+        return torch.square(self.base_lin_vel[:, 2])
+
+    def _reward_dof_vel(self):
+        # Penalize dof velocities
+        return torch.sum(torch.square(self.dof_vel), dim=1)
+
+    def _reward_termination(self):
+        # Terminal reward / penalty
+        return self.reset_buf * ~self.time_out_buf
+
+    def _reward_dof_pos_limits(self):
+        # Penalize dof positions too close to the limit
+        out_of_limits = -(self.dof_pos - self.dof_pos_limits[:, 0]).clip(max=0.)  # lower limit
+        out_of_limits += (self.dof_pos - self.dof_pos_limits[:, 1]).clip(min=0.)
+        return torch.sum(out_of_limits, dim=1)
+
+    def _reward_dof_vel_limits(self):
+        # Penalize dof velocities too close to the limit
+        # clip to max error = 1 rad/s per joint to avoid huge penalties
+        return torch.sum(
+            (torch.abs(self.dof_vel) - self.dof_vel_limits * self.cfg.rewards.soft_dof_vel_limit).clip(min=0., max=1.),
+            dim=1)
+    def _reward_feet_contact_forces(self):
+        # penalize high contact forces
+        return torch.sum((torch.norm(self.contact_forces[:, self.feet_indices, :],
+                                     dim=-1) - self.cfg.rewards.max_contact_force).clip(min=0.), dim=1)
