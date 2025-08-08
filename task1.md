@@ -26,12 +26,16 @@ export ROBOT_TYPE=PF_TRON1A
 
 ### 运行训练好的模型
 ```bash
-python legged_gym/scripts/play.py --task=pointfoot_rough --load_run Aug06_11-04-03_ --checkpoint 5000
+python legged_gym/scripts/play.py --task=pointfoot_rough --load_run Aug07_16-23-38_ --checkpoint 13000
 ```
 
 ### 训练新模型
 ```bash
 python legged_gym/scripts/train.py --task=pointfoot_rough --num_envs 8192 --max_iterations 15000 --headless
+
+python legged_gym/scripts/train.py --task=pointfoot_rough --num_envs 16384 --max_iterations 15000 --headless
+
+python legged_gym/scripts/train.py --task=pointfoot_rough --num_envs 32768 --max_iterations 15000 --headless
 ```
 
 ## 参数说明

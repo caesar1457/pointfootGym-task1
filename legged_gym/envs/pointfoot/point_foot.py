@@ -1226,7 +1226,7 @@ class PointFoot:
             (torch.abs(self.dof_vel) - self.dof_vel_limits * self.cfg.rewards.soft_dof_vel_limit).clip(min=0., max=1.),
             dim=1)
     def _reward_feet_contact_forces(self):
-        # penalize high contact forces
+        # Penalize high contact forces
         return torch.sum((torch.norm(self.contact_forces[:, self.feet_indices, :],
                                      dim=-1) - self.cfg.rewards.max_contact_force).clip(min=0.), dim=1)
 
@@ -1246,3 +1246,15 @@ class PointFoot:
     
     def _reward_unbalance_feet_height(self):
         return torch.var(self.last_max_feet_height, dim=-1)
+
+    def _reward_stillness(self):
+        # Only give reward when the robot is stopped and the command is 0
+        is_stop_cmd = (
+            (torch.norm(self.commands[:, :2], dim=1) < 0.1) &   
+            (torch.abs(self.commands[:, 2]) < 0.1)               
+        )
+        lin_still = (torch.norm(self.base_lin_vel[:, :2], dim=1) < 0.07)
+        ang_still = (torch.abs(self.base_ang_vel[:, 2]) < 0.07)
+
+        return (lin_still & ang_still & is_stop_cmd).float()
+

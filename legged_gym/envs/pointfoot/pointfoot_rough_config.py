@@ -27,7 +27,7 @@ class PointFootRoughCfg(BaseConfig):
         measured_points_y = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5]
         selected = False  # select a unique terrain type and pass all arguments
         terrain_kwargs = None  # Dict of arguments for selected terrain
-        max_init_terrain_level = 5  # starting curriculum state
+        max_init_terrain_level = 5  # starting curriculum state  # banyan 5
         terrain_length = 8.
         terrain_width = 8.
         num_rows = 10  # number of terrain rows (levels)
@@ -38,15 +38,15 @@ class PointFootRoughCfg(BaseConfig):
         slope_treshold = 0.75  # slopes above this threshold will be corrected to vertical surfaces
 
     class commands:
-        curriculum = True
+        curriculum = True       # banyan  False
         max_curriculum = 1.
         num_commands = 4  # default: lin_vel_x, lin_vel_y, ang_vel_yaw, heading (in heading mode ang_vel_yaw is recomputed from heading error)
-        resampling_time = 10.  # time before command are changed[s]
+        resampling_time = 4.  # time before command are changed[s]      # banyan 10
         heading_command = True  # if true: compute ang vel command from heading error
 
         class ranges:
-            lin_vel_x = [-1.0, 1.0]  # min max [m/s]
-            lin_vel_y = [-0.4, 0.4]  # min max [m/s]
+            lin_vel_x = [-1.0, 2.0]  # min max [m/s]
+            lin_vel_y = [-0.4, 0.4]  # min max [m/s]    # banyan  [-0.2, 0.2]
             ang_vel_yaw = [-1, 1]  # min max [rad/s]
             heading = [-3.14, 3.14]
 
@@ -139,40 +139,42 @@ class PointFootRoughCfg(BaseConfig):
         class scales:
             # ========== 奖励函数 (正奖励) ==========
             # 任务完成相关奖励
-            tracking_lin_vel = 10.0      # 线性速度跟踪奖励
-            tracking_ang_vel = 5         # 角速度跟踪奖励
-            feet_air_time = 60           # 足部空中时间奖励
-            survival = 100               # 生存奖励
-            no_fly = 1.0                 # 防飞行奖励
-            
+            tracking_lin_vel = 15.0       # 线性速度跟踪奖励      # 代码2: 10.0
+            tracking_ang_vel = 7.5        # 角速度跟踪奖励        # 代码2: 5
+            feet_air_time = 60            # 足部空中时间奖励      # 代码2: 60
+            survival = 100                # 生存奖励             # 代码2: 100
+            no_fly = 1.0                  # 防飞行奖励           # 代码2: 1.0
+
             # ========== 惩罚函数 (负奖励) ==========
             # 安全性惩罚
-            collision = -50.0            # 碰撞惩罚
-            termination = -0.0           # 终止惩罚
-            
+            collision = -80.0             # 碰撞惩罚             # 代码2: -50.0
+            termination = -0.0            # 终止惩罚             # 代码2: -0.0
+
             # 运动稳定性惩罚
-            ang_vel_xy = -0.05          # XY轴角速度惩罚
-            lin_vel_z = -0.5            # Z轴线性速度惩罚
-            orientation = -5.0           # 姿态惩罚
-            base_height = -10.0         # 基础高度惩罚
-            
+            ang_vel_xy = -0.1             # XY轴角速度惩罚        # 代码2: -0.05
+            lin_vel_z = -1.0              # Z轴线性速度惩罚       # 代码2: -0.5
+            orientation = -10.0           # 姿态惩罚              # 代码2: -5.0
+            base_height = -15.0           # 基础高度惩罚          # 代码2: -10.0
+
             # 关节控制惩罚
-            torques = -2.5e-05          # 扭矩惩罚
-            torque_limits = -0.1        # 扭矩限制惩罚
-            dof_acc = -2.5e-07          # 关节加速度惩罚
-            dof_vel = -0.0              # 关节速度惩罚
-            dof_pos_limits = -0.0       # 关节位置限制惩罚
-            action_rate = -0.01         # 动作变化率惩罚
-            
+            torques = -2.5e-05            # 扭矩惩罚              # 代码2: -2.5e-05
+            torque_limits = -0.1          # 扭矩限制惩罚          # 代码2: -0.1
+            dof_acc = -2.5e-07            # 关节加速度惩罚        # 代码2: -2.5e-07
+            dof_vel = -0.0                # 关节速度惩罚          # 代码2: -0.0
+            dof_pos_limits = -0.0         # 关节位置限制惩罚      # 代码2: -0.0
+            action_rate = -0.01           # 动作变化率惩罚        # 代码2: -0.01
+
             # 足部控制惩罚
-            feet_contact_forces = -0.01 # 足部接触力惩罚
-            feet_distance = -100        # 足部距离惩罚
-            feet_stumble = -0.0         # 足部绊倒惩罚
-            unbalance_feet_air_time = -300.0  # 不平衡足部空中时间惩罚
-            unbalance_feet_height = -60.0     # 不平衡足部高度惩罚
-            
-            # 其他惩罚
-            stand_still = -1.0          # 静止惩罚
+            feet_contact_forces = -0.01   # 足部接触力惩罚        # 代码2: -0.01
+            feet_distance = -135.0         # 足部距离惩罚          # 代码2: -100
+            feet_stumble = -0.0           # 足部绊倒惩罚          # 代码2: -0.0
+            unbalance_feet_air_time = -300.0   # 不平衡足部空中时间惩罚 # 代码2: -300.0
+            unbalance_feet_height = -60.0      # 不平衡足部高度惩罚     # 代码2: -60.0
+
+            # 稳定性奖励
+            stand_still = -2.0            # 静止惩罚              # 代码2: -1.0        
+            stillness = 1.0               # 静止时奖励
+
             
         base_height_target = 0.62
         soft_dof_pos_limit = 0.95  # percentage of urdf limits, values above this limit are penalized
@@ -267,7 +269,7 @@ class PointFootRoughCfgPPO(BaseConfig):
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'
         num_steps_per_env = 24  # per iteration
-        max_iterations = 100000  # number of policy updates
+        max_iterations = 20000  # number of policy updates
 
         # logging
         save_interval = 1000  # check for potential saves every this many iterations
